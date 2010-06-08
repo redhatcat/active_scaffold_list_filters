@@ -14,7 +14,7 @@ module ActiveScaffold::Actions
 
       base.before_filter :list_filter_authorized?, :only => [:list_filter]
       base.before_filter :init_filter_session_var
-      base.before_filter :do_list_filter
+      base.before_filter :do_list_filter, :only => [:list, :index]
     end
 
     # todo, clean this up!!!
@@ -29,9 +29,6 @@ module ActiveScaffold::Actions
         elsif params["list_filter"]["input"] == "reset"
           active_scaffold_session_storage["list_filter"] = nil
         end
-        # if we aren't, then are we loading the filter, if not load the default
-      elsif params["action"] != "list_filter"
-        active_scaffold_session_storage["list_filter"] = load_list_filter(:default)
       end
     end
 
@@ -58,6 +55,7 @@ module ActiveScaffold::Actions
 
     def do_list_filter
       verbose_filter = []
+      Rails.logger.debug active_scaffold_session_storage.inspect
       active_scaffold_config.list_filter.filters.each do |filter|
         filter_session = active_scaffold_session_storage["list_filter"] unless active_scaffold_session_storage["list_filter"].nil?
         filter_session = filter_session[filter.filter_type] unless filter_session.nil?
