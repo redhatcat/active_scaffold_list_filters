@@ -1,14 +1,21 @@
 class ListFilters::AssociationFilter < ActiveScaffold::DataStructures::ListFilter
 
-  # Return a list of conditions based on the params 
+  # Return a list of conditions based on the params
   def find_options
     begin
       association = association_class
       options = {}
       options[:include] = association_name
-      options[:conditions] = ["#{association.table_name}.id IN (?)", params]
+      if params.include? 'NOT'
+        params.delete 'NOT'
+        if not params.empty?
+          options[:conditions] = ["#{association.table_name}.id NOT IN (?)", params]
+        end
+      else
+        options[:conditions] = ["#{association.table_name}.id IN (?)", params]
+      end
 
-      return options      
+      return options
     end unless params.nil? || params.empty?
   end
 
@@ -28,5 +35,14 @@ class ListFilters::AssociationFilter < ActiveScaffold::DataStructures::ListFilte
   def association_class
     association = @core.model.reflect_on_association(association_name)
     association.klass
+  end
+
+  def associated_values
+    values = association_class.find(:all).collect{ |obj|
+      [obj.id, obj.to_label]
+    }.sort{ |a, b|
+      a[1] <=> b[1]
+    }
+    [['NOT', 'Exclude selections']] + values
   end
 end
