@@ -55,7 +55,6 @@ module ActiveScaffold::Actions
 
     def do_list_filter
       verbose_filter = []
-      Rails.logger.debug active_scaffold_session_storage.inspect
       active_scaffold_config.list_filter.filters.each do |filter|
         filter_session = active_scaffold_session_storage["list_filter"] unless active_scaffold_session_storage["list_filter"].nil?
         filter_session = filter_session[filter.filter_type] unless filter_session.nil?
