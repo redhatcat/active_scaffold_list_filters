@@ -28,7 +28,11 @@
         }
       %>
       <%= select_tag('list_filter[load_filter_name]',
-        options_for_select(pairs)) %>
+        options_for_select(pairs), :onchange =>
+        "$('#{list_filter_form_id}').onsubmit();" +
+        "$('#{action_link_id(url_options[:action], url_options[:id] || url_options[:parent_id])}').removeClassName('disabled');" +
+        "$('#{list_filter_form_id}').up('div').remove();"
+      )%>
 		</div>
 
 		<%
@@ -57,8 +61,8 @@
 <%= submit_tag as_("Save Current Filters"), :onclick =>
 "$('#{loading_indicator_id(:action => :table)}').style.visibility = 'visible';" +
 "$('list_filter_input').setValue('save');" +
-"$('#{loading_indicator_id(:action => :table)}').style.visibility = 'hidden';" +
 "$('#{list_filter_form_id}').onsubmit();" +
+"$('#{loading_indicator_id(:action => :table)}').style.visibility = 'hidden';" +
 "$('list_filter_filter_name').value = '';" +
 "$('list_filter_input').setValue('filter');" +
 "return false;"  %>
