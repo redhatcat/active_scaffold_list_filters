@@ -3,20 +3,28 @@ class ListFilters::FieldSetFilter < ActiveScaffold::DataStructures::ListFilter
   def find_options
     begin
       options = {}
+      clean_params = params.reject{ |p| p == 'NOT' }
       if params.include? 'NOT'
-        params.delete 'NOT'
-        if not params.empty?
-          options[:conditions] = ["#{field_name.to_s} NOT IN (?)", params]
+        if not clean_params.empty?
+          options[:conditions] = ["#{field_name.to_s} NOT IN (?)", clean_params]
         end
       else
-        options[:conditions] = ["#{field_name.to_s} IN (?)", params]
+        options[:conditions] = ["#{field_name.to_s} IN (?)", clean_params]
       end
       return options
     end unless params.blank?
   end
 
   def verbose
-    return params.join(", ") unless params.blank?
+    clean_params = params.reject{ |p| p == 'NOT' }
+    if not clean_params.empty?
+      if params.include? 'NOT'
+        return "NOT " + clean_params.join(", ")
+      else
+        return clean_params.join(", ")
+      end
+    end
+    nil
   end
 
   def field_name

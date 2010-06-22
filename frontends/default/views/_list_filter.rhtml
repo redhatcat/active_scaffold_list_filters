@@ -13,9 +13,23 @@
 <h3 id="trigger"><%=as_('Filters')%></h3>
 
 <div class="filter_accordion">
+			<div class="filter_handle" title="<%=as_("Saved Filters")%>"><canvas width=22 height=150></canvas><!--[if IE]><div class="filter_trigger"></div><![endif]--></div>
+
 		<% filter_config.filters.each do |filter| %>
 			<div class="filter_handle" title="<%=as_(filter.label)%>"><canvas width=22 height=150></canvas><!--[if IE]><div class="filter_trigger"></div><![endif]--></div>
 		<% end %>
+
+		<div class="filter_body">
+			<h3><%=as_("Saved Filters")%></h3>
+      <%
+        saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+        pairs = [['- select -', '']] + saved_filters.keys.sort.collect{ |name|
+          [name, name]
+        }
+      %>
+      <%= select_tag('list_filter[load_filter_name]',
+        options_for_select(pairs)) %>
+		</div>
 
 		<%
 		id = params[:eid] || params[:controller]
@@ -36,6 +50,18 @@
 <br style='clear: left;' />
 
 <%= hidden_field_tag('list_filter[input]','filter') %>
+
+<%= content_tag(:label, "Filter Name&nbsp;" +
+  text_field_tag('list_filter[filter_name]')) %>
+
+<%= submit_tag as_("Save Current Filters"), :onclick =>
+"$('#{loading_indicator_id(:action => :table)}').style.visibility = 'visible';" +
+"$('list_filter_input').setValue('save');" +
+"$('#{loading_indicator_id(:action => :table)}').style.visibility = 'hidden';" +
+"$('#{list_filter_form_id}').onsubmit();" +
+"$('list_filter_filter_name').value = '';" +
+"$('list_filter_input').setValue('filter');" +
+"return false;"  %>
 
 <%= submit_tag as_("Clear Filters & Close"), :onclick =>
 "$('#{loading_indicator_id(:action => :table)}').style.visibility = 'visible';" +

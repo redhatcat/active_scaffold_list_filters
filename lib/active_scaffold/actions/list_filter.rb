@@ -22,9 +22,13 @@ module ActiveScaffold::Actions
       # check if how we're filtering
       if !params["list_filter"].nil?
         if params["list_filter"]["input"] == "filter"
-          active_scaffold_session_storage["list_filter"] = params["list_filter"]
-        elsif params["list_filter"]["input"] == "save"
-          active_scaffold_session_storage["list_filter"] = params["list_filter"]
+          if not params["list_filter"]["load_filter_name"].blank?
+            load_list_filter
+          else
+            active_scaffold_session_storage["list_filter"] = params["list_filter"]
+          end
+        elsif params["list_filter"]["input"] == "save" and
+          not params["list_filter"]["filter_name"].blank?
           save_list_filter
         elsif params["list_filter"]["input"] == "reset"
           active_scaffold_session_storage["list_filter"] = nil
@@ -92,20 +96,17 @@ module ActiveScaffold::Actions
     end
 
     def save_list_filter
-      return
-
-      saved_filters = active_scaffold_config.list.user.db_load(:list_filter) || {}
-      p = params[:list_filter]
-      p.delete(:input)
-      saved_filters[:default] = p
-      active_scaffold_config.list.user.db_save(:list_filter, saved_filters)
+      saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+      filter_name = params["list_filter"]["filter_name"]
+      saved_filters[filter_name] =
+        active_scaffold_session_storage["list_filter"]
+      active_scaffold_config.list_filter.user.saved_list_filters = saved_filters
     end
 
-    def load_list_filter(filter)
-      return {}
-
-      saved_filters = active_scaffold_config.list.user.db_load(:list_filter) || {}
-      return saved_filters[:default]
+    def load_list_filter
+      filter_name = params["list_filter"]["load_filter_name"]
+      saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+      active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
     end
 
     def clear_list_filter

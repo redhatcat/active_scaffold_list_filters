@@ -6,13 +6,14 @@ class ListFilters::AssociationFilter < ActiveScaffold::DataStructures::ListFilte
       association = association_class
       options = {}
       options[:include] = association_name
+      clean_params = params.reject{ |p| p == 'NOT' }
       if params.include? 'NOT'
-        params.delete 'NOT'
-        if not params.empty?
-          options[:conditions] = ["#{association.table_name}.id NOT IN (?)", params]
+        if not clean_params.empty?
+          options[:conditions] = ["#{association.table_name}.id NOT IN (?)",
+            clean_params]
         end
       else
-        options[:conditions] = ["#{association.table_name}.id IN (?)", params]
+        options[:conditions] = ["#{association.table_name}.id IN (?)", clean_params]
       end
 
       return options
@@ -21,11 +22,19 @@ class ListFilters::AssociationFilter < ActiveScaffold::DataStructures::ListFilte
 
   def verbose
     begin
-      ar_class = association_class
-      associated_values = ar_class.find(params).sort {|a,b| a.to_label <=> b.to_label }
-      verbose_values = associated_values.collect{|av| av.to_label}.join(", ")
-      return verbose_values
+      clean_params = params.reject{ |p| p == 'NOT' }
+      if not clean_params.empty?
+        ar_class = association_class
+        associated_values = ar_class.find(clean_params).sort {|a,b| a.to_label <=> b.to_label }
+        verbose_values = associated_values.collect{|av| av.to_label}.join(", ")
+        if params.include? 'NOT'
+          return "NOT #{verbose_values}"
+        else
+          return verbose_values
+        end
+      end
     end unless params.nil? || params.empty?
+    nil
   end
 
   def association_name

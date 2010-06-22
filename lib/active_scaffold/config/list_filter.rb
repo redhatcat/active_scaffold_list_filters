@@ -48,5 +48,15 @@ module ActiveScaffold::Config
     def add(filter_type, filter_name, options = {}, defaults = {})
       @list_filters.add(filter_type, filter_name, @core, options, defaults)
     end
+
+    class UserSettings < UserSettings
+      def saved_list_filters
+        @session['saved_list_filters']
+      end
+
+      def saved_list_filters=(value=[])
+        @session['saved_list_filters'] = value
+      end
+    end
   end
 end
