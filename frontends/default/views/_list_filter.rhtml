@@ -27,12 +27,31 @@
           [name, name]
         }
       %>
-      <%= select_tag('list_filter[load_filter_name]',
-        options_for_select(pairs), :onchange =>
-        "$('#{list_filter_form_id}').onsubmit();" +
-        "$('#{action_link_id(url_options[:action], url_options[:id] || url_options[:parent_id])}').removeClassName('disabled');" +
-        "$('#{list_filter_form_id}').up('div').remove();"
-      )%>
+
+      <div>
+        <%= content_tag(:label, "Load Filter: ") %>
+        <%=
+          select_tag('list_filter[load_filter_name]',
+            options_for_select(pairs), :onchange =>
+            "$('#{list_filter_form_id}').onsubmit();" +
+            "$('#{action_link_id(url_options[:action], url_options[:id] || url_options[:parent_id])}').removeClassName('disabled');" +
+            "$('#{list_filter_form_id}').up('div').remove();"
+          )
+        %>
+      </div>
+
+      <div>
+        <%= content_tag(:label, "Delete Filter: ") %>
+        <%=
+          select_tag('list_filter[delete_filter_name]',
+            options_for_select(pairs), :onchange =>
+            "$('#{list_filter_form_id}').onsubmit();" +
+            "$('#{action_link_id(url_options[:action],
+              url_options[:id] || url_options[:parent_id])}').removeClassName('disabled');" +
+            "$('#{list_filter_form_id}').up('div').remove();"
+          )
+        %>
+      </div>
 		</div>
 
 		<%

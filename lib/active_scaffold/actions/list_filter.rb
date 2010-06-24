@@ -24,6 +24,8 @@ module ActiveScaffold::Actions
         if params["list_filter"]["input"] == "filter"
           if not params["list_filter"]["load_filter_name"].blank?
             load_list_filter
+          elsif not params["list_filter"]["delete_filter_name"].blank?
+            delete_list_filter
           else
             active_scaffold_session_storage["list_filter"] = params["list_filter"]
           end
@@ -106,6 +108,13 @@ module ActiveScaffold::Actions
     def load_list_filter
       filter_name = params["list_filter"]["load_filter_name"]
       saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+      active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
+    end
+
+    def delete_list_filter
+      filter_name = params["list_filter"]["delete_filter_name"]
+      saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+      saved_filters.delete(filter_name)
       active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
     end
 
