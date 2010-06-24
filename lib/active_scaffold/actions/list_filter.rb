@@ -98,24 +98,41 @@ module ActiveScaffold::Actions
     end
 
     def save_list_filter
-      saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+      filter_config = active_scaffold_config.list_filter
       filter_name = params["list_filter"]["filter_name"]
-      saved_filters[filter_name] =
-        active_scaffold_session_storage["list_filter"]
-      active_scaffold_config.list_filter.user.saved_list_filters = saved_filters
+      if filter_config.filter_save_class
+        filter_config.filter_save_class.save(current_user.id,
+          filter_name, active_scaffold_session_storage["list_filter"])
+      else
+        saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+        saved_filters[filter_name] =
+          active_scaffold_session_storage["list_filter"]
+        active_scaffold_config.list_filter.user.saved_list_filters = saved_filters
+      end
     end
 
     def load_list_filter
+      filter_config = active_scaffold_config.list_filter
       filter_name = params["list_filter"]["load_filter_name"]
-      saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
-      active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
+      if filter_config.filter_save_class
+        active_scaffold_session_storage["list_filter"] =
+          filter_config.filter_save_class.load(current_user.id, filter_name)
+      else
+        saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
+        active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
+      end
     end
 
     def delete_list_filter
+      filter_config = active_scaffold_config.list_filter
       filter_name = params["list_filter"]["delete_filter_name"]
-      saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
-      saved_filters.delete(filter_name)
-      active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
+      if filter_config.filter_save_class
+          filter_config.filter_save_class.delete(current_user.id, filter_name)
+      else
+        saved_filters = filter_config.user.saved_list_filters || {}
+        saved_filters.delete(filter_name)
+        active_scaffold_session_storage["list_filter"] = saved_filters[filter_name]
+      end
     end
 
     def clear_list_filter

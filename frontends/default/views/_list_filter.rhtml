@@ -22,8 +22,8 @@
 		<div class="filter_body">
 			<h3><%=as_("Saved Filters")%></h3>
       <%
-        saved_filters = active_scaffold_config.list_filter.user.saved_list_filters || {}
-        pairs = [['- select -', '']] + saved_filters.keys.sort.collect{ |name|
+        saved_filters = active_scaffold_config.list_filter.get_filter_names(current_user)
+        pairs = [['- select -', '']] + saved_filters.collect{ |name|
           [name, name]
         }
       %>

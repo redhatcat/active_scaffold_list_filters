@@ -1,12 +1,14 @@
 module ActiveScaffold::Config
   class ListFilter < Base
     self.crud_type = :read
+    attr_accessor :filter_save_class
 
     def initialize(core_config)
       @core = core_config
 
       # originates here
       @list_filters = ActiveScaffold::DataStructures::ListFilters.new()
+      @filter_save_class = nil
     end
 
     # global level configuration
@@ -47,6 +49,24 @@ module ActiveScaffold::Config
     # Add a list filter
     def add(filter_type, filter_name, options = {}, defaults = {})
       @list_filters.add(filter_type, filter_name, @core, options, defaults)
+    end
+
+    # Use specified class/module to save filters for users
+    # Class/Module must support these public methods:
+    #  list(user_id) => filter_names
+    #  save(user_id, name, params_hash) => nil
+    #  load(user_id, name) => params_hash
+    #  delete(user_id, name) => nil
+    def save_with(save_class)
+      @filter_save_class = save_class
+    end
+
+    def get_filter_names(current_user)
+      if filter_save_class
+        filter_save_class.list(current_user.id)
+      else
+        user.saved_list_filters.keys.sort
+      end
     end
 
     class UserSettings < UserSettings
