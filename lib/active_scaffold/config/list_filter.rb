@@ -65,7 +65,11 @@ module ActiveScaffold::Config
       if filter_save_class
         filter_save_class.list(current_user.id)
       else
-        user.saved_list_filters.keys.sort
+        if user.saved_list_filters
+          user.saved_list_filters.keys.sort
+        else
+          []
+        end
       end
     end
 
